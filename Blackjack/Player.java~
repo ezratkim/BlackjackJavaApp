@@ -1,0 +1,73 @@
+/** Class that describes object Player that has a name and
+  * an amount of money to spend.
+  *
+  * @author Ezra Kim
+  */
+  package Blackjack;
+
+  public class Player
+  {
+      ////instance var////
+      private String name;
+      private int money;
+      private int status; // 1 will mean you're still in the game, 0 will mean you lose
+
+      ////constructor////
+      public Player(String newName, int currentMoney)
+      {
+          name = newName;
+          money = currentMoney;
+          status = 1;
+      }
+
+      ////methods////
+      /** Method to get name of player
+        * @return name
+        */
+      public String getName(){return name;}
+
+      /** Method to get current money of player
+        * @return money
+        */
+      public int getMoney(){return money;}
+
+      /**Method to check status of player
+       * @return status
+       */
+      public int checkStatus()
+      {
+          if(!(money > 0)){status = 0;}
+          else{status = 1;}
+          return status;
+      }
+
+      /** Method that removes 20 from current money
+       */
+      public void bet()
+      {
+          money = money - 20;
+      }
+
+      /** Method that adds 40 to current money
+       */
+      public void win()
+      {
+          money  = money + 40;
+      }
+
+      /** Method to sell something for money, but if its a dog,
+        * your status is set to 0 (you lose)
+        * @param sell what you're selling 
+        * @return status
+        */
+      public int sell(String sell)
+      {
+          if(sell == "dog") {status = 0;}
+          else
+          {
+              money = money + 60;
+              status = 1;
+          }
+        return status;
+    }
+  }

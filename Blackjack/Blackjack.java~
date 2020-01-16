@@ -1,0 +1,319 @@
+/** Class that creates a game of Blackjack
+  * 
+  * @author Ezra Kim
+  */
+
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+
+public class Blackjack extends JFrame{
+  ////instance var////
+  private Player user = new Player("Player 1", 200);
+  private Deck deck = new Deck();
+  private Card currentCard;
+  private ImagePanel panel = new ImagePanel(new ImageIcon("blackjack.jpg").getImage());
+  private ImagePanel deckImg = new ImagePanel(new ImageIcon("deck.jpg").getImage());
+  private ImagePanel playerPanel = new ImagePanel(new ImageIcon("playpanel.jpg").getImage());
+  private ImagePanel dealerPanel = new ImagePanel(new ImageIcon("playpanel.jpg").getImage());
+  private ImagePanel sellImg;
+  private ImagePanel sellPanel = new ImagePanel(new ImageIcon("sellPanel.jpg").getImage());
+  private ImagePanel cardImg;
+  private JButton deal;
+  private JButton hit;
+  private JButton stand;
+  private JButton clear;
+  private JButton sell;
+  private JButton dog;
+  private JLabel label;
+  private JLabel name;
+  private JLabel money;
+  private JLabel currentScore;
+  private JLabel dealScore;
+  private JLabel dogLabel;
+  private int status;
+  private int dealerScore;
+  private int score;
+  private int x;
+  private int times;
+  private int dealerTimes;
+  private int sellWife;
+  private int sellKid;
+  private int sellHouse;
+  
+  ////constructor////
+  /** Constructor that creates the main JPanel, and creates and places all GUI components
+    * onto the main JPanel
+    */
+  public Blackjack(){
+    //initializes the window
+    getContentPane().add(panel);
+    pack();
+    setResizable(false);
+    status = 0;
+    
+    //initializes the name of the game
+    name = new JLabel("BLACKJACK (disclaimer: ACE = 1)");
+    name.setFont(new Font("Courier New", Font.BOLD, 40));
+    name.setForeground(Color.RED);
+    name.setBounds(600,50,800,40);
+    panel.add(name);
+    
+    //initializes the player card area
+    playerPanel.setLocation(350,470);
+    panel.add(playerPanel);
+    
+    //initializes the dealer card area
+    dealerPanel.setLocation(350,100);
+    panel.add(dealerPanel);
+    
+    //initializes the selling area
+    sellPanel.setLocation(10,160);
+    panel.add(sellPanel);
+    
+    //initializes and implements actions for the 3 normal sell buttons
+    sell = new JButton("Sell for $40");
+    sell.setBounds(200,50,100,60);
+    sellPanel.add(sell);
+    sell.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        if(sellWife == 0){
+          user.setMoney(user.getMoney() + 40);
+          money.setText("Money: $" + user.getMoney());
+          sellWife++;
+        }
+      }
+    });
+    sell = new JButton("Sell for $40");
+    sell.setBounds(200,180,100,60);
+    sellPanel.add(sell);
+    sell.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        if(sellKid == 0){
+          user.setMoney(user.getMoney() + 40);
+          money.setText("Money: $" + user.getMoney());
+          sellKid++;
+        }
+      }
+    });
+    sell = new JButton("Sell for $40");
+    sell.setBounds(200,310,100,60);
+    sellPanel.add(sell);
+    sell.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        if(sellHouse == 0){
+          user.setMoney(user.getMoney() + 40);
+          money.setText("Money: $" + user.getMoney());
+          sellHouse++;
+        }
+      }
+    });
+    
+    //initializes and implements the action for the dog sell button
+    dog = new JButton("Sell for $40");
+    dog.setBounds(200,440,100,60);
+    sellPanel.add(dog);
+    dog.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        label = new JLabel("Seriously? You'd sell your dog? That's messed up..." +
+                           "This game will now be rendered unplayable!");
+        label.setFont(new Font("Arial", Font.BOLD, 40));
+        label.setForeground(Color.RED);
+        JOptionPane.showMessageDialog(null, label, "ERROR", JOptionPane.WARNING_MESSAGE);
+        removeAll();
+      }
+    });
+    dogLabel = new JLabel("(you really shouldn't)");
+    dogLabel.setFont(new Font("Courier New", Font.BOLD, 14));
+    dogLabel.setForeground(Color.RED);
+    dogLabel.setBounds(150,500,200,20);
+    sellPanel.add(dogLabel);
+    
+    //initializes the images for the sell area
+    sellImg = new ImagePanel(new ImageIcon("wife.jpeg").getImage());
+    sellImg.setLocation(10,10);
+    sellPanel.add(sellImg);
+    sellImg = new ImagePanel(new ImageIcon("kid.jpg").getImage());
+    sellImg.setLocation(10,140);
+    sellPanel.add(sellImg);
+    sellImg = new ImagePanel(new ImageIcon("house.jpg").getImage());
+    sellImg.setLocation(10,270);
+    sellPanel.add(sellImg);
+    sellImg = new ImagePanel(new ImageIcon("dog.jpg").getImage());
+    sellImg.setLocation(10,410);
+    sellPanel.add(sellImg);
+    
+    //initializes the image for the deck
+    deckImg.setLocation(1500,300);
+    panel.add(deckImg);
+    
+    //initializes the label for the player's money
+    money = new JLabel("Money: $" + user.getMoney());
+    money.setFont(new Font("Courier New", Font.BOLD, 30));
+    money.setForeground(Color.RED);
+    money.setBounds(1500,650,250,30);
+    panel.add(money);
+    
+    //initializes the label for the player's score
+    currentScore = new JLabel("Your score: " + score + "/21");
+    currentScore.setFont(new Font("Courier New", Font.BOLD, 30));
+    currentScore.setForeground(Color.RED);
+    currentScore.setBounds(800,770,400,30);
+    panel.add(currentScore);
+    
+    //initiazlies the label for the dealer's score
+    dealScore = new JLabel("Dealer score: " + dealerScore + "/21");
+    dealScore.setFont(new Font("Courier New", Font.BOLD, 30));
+    dealScore.setForeground(Color.RED);
+    dealScore.setBounds(800,820,400,30);
+    panel.add(dealScore);
+    
+    //intializes and implements the action for the hit button
+    hit = new JButton("Hit");
+    hit.setBounds(700,400,100,60);
+    panel.add(hit);
+    hit.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        //as long as the score is less than or equal to 21, the hit button will be able to deal a card when pressed
+        if(score <= 21 && status == 1){
+          currentCard = deck.dealCard();
+          score = score + currentCard.getValue();
+          currentScore.setText("Your score: " + score + "/21");
+          times++;
+          cardImg = new ImagePanel(new ImageIcon(currentCard + ".jpg").getImage());
+          if(times == 1){cardImg.setLocation(500,25);}
+          else if(times == 2){cardImg.setLocation(300,25);}
+          else{cardImg.setLocation(100,25);}
+          playerPanel.add(cardImg);
+          panel.updateUI();
+          //if the score equals 0 after pressing the hit button, player automatically wins
+          if(score == 21){
+            user.win();
+            JOptionPane.showMessageDialog(null, "You win!");
+            currentScore.setText("Your score: " + score + "/21");
+            status = 0;
+            panel.updateUI();
+            //if the score is greater than 21 after pressing the hit button, player loses
+          }else if(score > 21){
+            JOptionPane.showMessageDialog(null, "You lose!");
+            status = 0;
+            currentScore.setText("Your score: " + score + "/21 BUST");
+          }
+        }
+      }
+    });
+    
+    //initializes and implements the action for the stand button
+    stand = new JButton("Stand");
+    stand.setBounds(900,400,100,60);
+    panel.add(stand);
+    stand.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        //if the player's score is under 21, pressing the stand button will cause the dealer to start their turn and
+        //continue dealing cards until the dealer's score is over 21, or greater than or equal to the player's score
+        if(score < 21 && status == 1){
+          while(dealerScore < 21 && dealerScore < score){
+            currentCard = deck.dealCard();
+            dealerScore = dealerScore + currentCard.getValue();
+            dealScore.setText("Dealer score: " + dealerScore + "/21");
+            dealerTimes++;
+            cardImg = new ImagePanel(new ImageIcon(currentCard + ".jpg").getImage());
+            if(dealerTimes == 1)cardImg.setLocation(900,25);
+            else if(dealerTimes == 2)cardImg.setLocation(700,25);
+            else if(dealerTimes == 3){cardImg.setLocation(500,25);}
+            else if(dealerTimes == 4){cardImg.setLocation(300,25);}
+            else{cardImg.setLocation(100,25);}
+            dealerPanel.add(cardImg);
+            panel.updateUI();
+          }
+          if(dealerScore > 21){
+            user.win();
+            JOptionPane.showMessageDialog(null, "You win!");
+            currentScore.setText("Your score: " + score + "/21");
+            status = 0;
+          }else{
+            JOptionPane.showMessageDialog(null, "You lose!");
+            status = 0;
+          }
+        }
+      }
+    });
+    
+    //initializes and implements the actions for the deal button
+    deal = new JButton("Deal");
+    deal.setBounds(1535,550,100,60);
+    panel.add(deal);
+    deal.addActionListener(new ActionListener(){
+      public void actionPerformed(ActionEvent e){
+        //when pressed, the deal button will reset the playing areas, and set the scores and times to 0
+        if(user.getMoney() > 0 && status == 0){
+          playerPanel.removeAll();
+          dealerPanel.removeAll();
+          dealerScore = 0;
+          score = 0;
+          dealerTimes = 0;
+          times = 0;
+          dealScore.setText("Dealer score: " + dealerScore + "/21");
+          currentScore.setText("Your score: " + score + "/21");
+          panel.revalidate();
+          panel.repaint();
+          pack();
+          panel.updateUI();
+          
+          //places a bet (-$20) and shuffles the deck
+          user.bet();
+          deck.shuffle();
+          
+          //deals two cards to the player
+          currentCard = deck.dealCard();
+          score = score + currentCard.getValue();
+          cardImg = new ImagePanel(new ImageIcon(currentCard + ".jpg").getImage());
+          cardImg.setLocation(900,25);
+          playerPanel.add(cardImg);
+          currentCard = deck.dealCard();
+          score = score + currentCard.getValue();
+          currentScore.setText("Your score: " + score + "/21");
+          cardImg = new ImagePanel(new ImageIcon(currentCard + ".jpg").getImage());
+          cardImg.setLocation(700,25);
+          playerPanel.add(cardImg);
+          panel.updateUI();
+          
+          //updates the money of the player
+          money.setText("Money: $" + user.getMoney());
+          status++;
+        }
+      }
+    });
+    
+    setVisible(true);
+  }
+  
+  /** subclass that creates a JPanel that can set an image to be its background
+    */
+  private class ImagePanel extends JPanel {
+    
+    private Image img;
+    
+    public ImagePanel(String img) {
+      this(new ImageIcon(img).getImage());
+    }
+    
+    public ImagePanel(Image img) {
+      this.img = img;
+      Dimension size = new Dimension(img.getWidth(null), img.getHeight(null));
+      setPreferredSize(size);
+      setMinimumSize(size);
+      setMaximumSize(size);
+      setSize(size);
+      setLayout(null);
+    }
+    
+    public void paintComponent(Graphics g) {
+      g.drawImage(img, 0, 0, null);
+    }
+  }
+  
+  public static void main(String[] args) {
+    Blackjack game = new Blackjack();
+  }
+}
